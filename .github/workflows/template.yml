@@ -7,73 +7,36 @@ env:
   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
 
 jobs:
- testRunner:
-   name: Edit Mode Tests
-   runs-on: ubuntu-latest
-   steps:
-     - name: Checkout code
-       uses: actions/checkout@v2
-
-     - name: Create LFS file list
-       run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
-
-     - name: Restore LFS cache
-       uses: actions/cache@v2
-       id: lfs-cache
-       with:
-         path: .git/lfs
-         key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
-
-     - name: Git LFS Pull
-       run: |
-         git lfs pull
-         git add .
-         git reset --hard
-
-     - name: Restore Library cache
-       uses: actions/cache@v2
-       with:
-         path: Library
-         key: Library-test-project
-         restore-keys: |
-           Library-test-project-
-           Library-
-
-     - uses: webbertakken/unity-test-runner@v2
-       id: testRunner
-       with:
-         testMode: EditMode
-
-     - uses: actions/upload-artifact@v2
-       with:
-         name: Test results (Edit Mode)
-         path: ${{ steps.testRunner.outputs.artifactsPath }}
-
- buildAndroid:
-   needs: testRunner
-   name: Build for ${{ matrix.targetPlatform }}
-   runs-on: ubuntu-latest
-   strategy:
-     fail-fast: false
-     matrix:
-       targetPlatform:
-         - Android
-   steps:
-     - uses: actions/checkout@v2
-       with:
-         fetch-depth: 0
-         lfs: true
-     - uses: actions/cache@v2
-       with:
-         path: Library
-         key: Library-${{ matrix.targetPlatform }}
-         restore-keys: Library-
-     - uses: game-ci/unity-builder@v2
-       env:
-         UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-       with:
-         targetPlatform: ${{ matrix.targetPlatform }}
-     - uses: actions/upload-artifact@v2
-       with:
-         name: Build-${{ matrix.targetPlatform }}
-         path: build/${{ matrix.targetPlatform }}
+  buildForSomePlatforms:
+    name: Build for ${{ matrix.targetPlatform }} on version ${{ matrix.unityVersion }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        projectPath:
+          - path/to/your/project
+        unityVersion:
+          - 2019.2.11f1
+          - 2019.3.0f1
+        targetPlatform:
+          - Android
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          lfs: true
+      - uses: actions/cache@v1.1.0
+        with:
+          path: ${{ matrix.projectPath }}/Library
+          key: Library-${{ matrix.projectPath }}-${{ matrix.targetPlatform }}
+          restore-keys: |
+            Library-${{ matrix.projectPath }}-
+            Library-
+      - uses: webbertakken/unity-builder@1.5
+        with:
+          projectPath: ${{ matrix.projectPath }}
+          unityVersion: ${{ matrix.unityVersion }}
+          targetPlatform: ${{ matrix.targetPlatform }}
+      - uses: actions/upload-artifact@v1
+        with:
+          name: Build
+          path: build
