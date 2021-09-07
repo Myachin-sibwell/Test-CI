@@ -7,7 +7,50 @@ env:
   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
 
 jobs:
-  buildForSomePlatforms:
+  testRunner:
+   name: Edit Mode Tests
+   runs-on: ubuntu-latest
+   steps:
+     - name: Checkout code
+       uses: actions/checkout@v2
+
+     - name: Create LFS file list
+       run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+     - name: Restore LFS cache
+       uses: actions/cache@v2
+       id: lfs-cache
+       with:
+         path: .git/lfs
+         key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+
+     - name: Git LFS Pull
+       run: |
+         git lfs pull
+         git add .
+         git reset --hard
+
+     - name: Restore Library cache
+       uses: actions/cache@v2
+       with:
+         path: Library
+         key: Library-test-project
+         restore-keys: |
+           Library-test-project-
+           Library-
+
+     - uses: webbertakken/unity-test-runner@v2
+       id: testRunner
+       with:
+         testMode: EditMode
+
+     - uses: actions/upload-artifact@v2
+       with:
+         name: Test results (Edit Mode)
+         path: ${{ steps.testRunner.outputs.artifactsPath }}
+  
+  buildAndroid:
+    needs: testRunner
     name: Build for ${{ matrix.targetPlatform }} on version ${{ matrix.unityVersion }}
     runs-on: ubuntu-latest
     strategy:
@@ -16,8 +59,7 @@ jobs:
         projectPath:
           - path/to/your/project
         unityVersion:
-          - 2019.2.11f1
-          - 2019.3.0f1
+          - 2019.4.1f1
         targetPlatform:
           - Android
     steps:
@@ -31,7 +73,7 @@ jobs:
           restore-keys: |
             Library-${{ matrix.projectPath }}-
             Library-
-      - uses: webbertakken/unity-builder@1.5
+      - uses: game-ci/unity-builder@v2
         with:
           projectPath: ${{ matrix.projectPath }}
           unityVersion: ${{ matrix.unityVersion }}
