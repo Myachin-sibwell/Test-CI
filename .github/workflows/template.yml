@@ -2,10 +2,7 @@ name: GameCI Template 🎮
 
 on: 
   workflow_dispatch: {}
-
-env:
-  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-
+  
 jobs:
   testRunner:
    name: Edit Mode Tests
@@ -50,35 +47,32 @@ jobs:
          path: ${{ steps.testRunner.outputs.artifactsPath }}
   
   buildAndroid:
-    needs: testRunner
-    name: Build for ${{ matrix.targetPlatform }} on version ${{ matrix.unityVersion }}
+    name: Build for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        projectPath:
-          - path/to/your/project
-        unityVersion:
-          - 2019.4.1f1
         targetPlatform:
           - Android
+          - iOS
+        unityVersion:
+          - auto
     steps:
       - uses: actions/checkout@v2
         with:
-          lfs: true
-      - uses: actions/cache@v1.1.0
+          fetch-depth: 0
+          lfs: false
+      - uses: actions/cache@v2
         with:
-          path: ${{ matrix.projectPath }}/Library
-          key: Library-${{ matrix.projectPath }}-${{ matrix.targetPlatform }}
-          restore-keys: |
-            Library-${{ matrix.projectPath }}-
-            Library-
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}
+          restore-keys: Library-
       - uses: game-ci/unity-builder@v2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          projectPath: ${{ matrix.projectPath }}
-          unityVersion: ${{ matrix.unityVersion }}
           targetPlatform: ${{ matrix.targetPlatform }}
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v2
         with:
-          name: Build
-          path: build
+          name: Build-${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
