@@ -47,6 +47,7 @@ jobs:
          path: ${{ steps.testRunner.outputs.artifactsPath }}
   
   buildAndroid:
+    needs: testRunner
     name: Build for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
     strategy:
