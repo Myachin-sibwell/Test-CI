@@ -1,4 +1,4 @@
-name: GameCI Template 🎮
+name: Android iOS CI
 
 on: 
   workflow_dispatch: {}
