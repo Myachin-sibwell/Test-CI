@@ -12,7 +12,7 @@ public class Test : MonoBehaviour
         Assert.IsTrue(test1 == test2);
         
         var a = test1 - 1;
-        var b = test2;
+        var b = test2 - 1;
         
         Assert.IsTrue(a == b);
     }
