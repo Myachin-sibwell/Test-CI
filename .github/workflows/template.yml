@@ -38,10 +38,12 @@ jobs:
            Library-
 
      - uses: game-ci/unity-test-runner@v2
-       id: testRunner
+       env:
+        UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
        with:
-         testMode: EditMode
-
+        testMode: EditMode
+        githubToken: ${{ secrets.ACCESS_TOKEN }}
+        
      - uses: actions/upload-artifact@v2
        with:
          name: Test results (all modes)
