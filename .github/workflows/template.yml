@@ -12,30 +12,28 @@ jobs:
      - name: Checkout code
        uses: actions/checkout@v2
 
-     - name: Create LFS file list
-       run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+     # - name: Create LFS file list
+       # run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
 
-     - name: Restore LFS cache
-       uses: actions/cache@v2
-       id: lfs-cache
-       with:
-         path: .git/lfs
-         key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+     # - name: Restore LFS cache
+       # uses: actions/cache@v2
+       # id: lfs-cache
+       # with:
+         # path: .git/lfs
+         # key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
 
-     - name: Git LFS Pull
-       run: |
-         git lfs pull
-         git add .
-         git reset --hard
+     # - name: Git LFS Pull
+       # run: |
+         # git lfs pull
+         # git add .
+         # git reset --hard
 
-     - name: Restore Library cache
-       uses: actions/cache@v2
-       with:
-         path: Library
-         key: Library-test-project
-         restore-keys: |
-           Library-test-project-
-           Library-
+     - name: Cache library
+        uses: actions/cache@v2
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}
+          restore-keys: Library-
 
      - uses: game-ci/unity-test-runner@v2
        env:
@@ -45,11 +43,12 @@ jobs:
         
      - uses: actions/upload-artifact@v2
        with:
-         name: Test Results (Edit Mode)
+         name: Test Results
+         path: ${{ steps.tests.outputs.artifactsPath }}
 
-  buildAndTest:
+  build:
     needs: testRunner
-    name: Build for ${{ matrix.targetPlatform }}
+    name: Builds
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
