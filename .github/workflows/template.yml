@@ -7,7 +7,7 @@ jobs:
 
   testRunner:
    name: Test Edit Mode
-   runs-on: macos-latest
+   runs-on: ubuntu-latest
    steps:
      - name: Checkout code
        uses: actions/checkout@v2
@@ -28,7 +28,7 @@ jobs:
   build:
     needs: testRunner
     name: Builds
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
