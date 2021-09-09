@@ -24,11 +24,6 @@ jobs:
         UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
        with:
         testMode: EditMode
-        
-     - uses: actions/upload-artifact@v2
-       with:
-         name: Test Results
-         path: test.txt
 
   build:
     needs: testRunner
