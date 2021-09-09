@@ -6,7 +6,7 @@ on:
 jobs:
 
   testRunner:
-   name: Test all modes
+   name: Test Edit Mode
    runs-on: ubuntu-latest
    steps:
      - name: Checkout code
@@ -45,8 +45,7 @@ jobs:
         
      - uses: actions/upload-artifact@v2
        with:
-         name: Test results (all modes)
-         path: ${{ steps.testRunner.outputs.artifactsPath }}
+         name: Test Results (Edit Mode)
 
   buildAndTest:
     needs: testRunner
