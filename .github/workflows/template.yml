@@ -28,7 +28,7 @@ jobs:
      - uses: actions/upload-artifact@v2
        with:
          name: Test Results
-         path: ${{ steps.tests.outputs.artifactsPath }}
+         path: test.txt
 
   build:
     needs: testRunner
