@@ -28,7 +28,7 @@ jobs:
   build:
     needs: testRunner
     name: Builds
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
